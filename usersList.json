@@ -1,0 +1,172 @@
+"password": "motdepassesecurise5",
+      "token": "tokenaleatoire5555555555555555"
+    },
+    "description": {
+      "work": "Professeur",
+      "bio": "Le savoir est une richesse à partager."
+    },
+    "preferences": {
+      "favBuddies": [],
+      "favRestaurant": [],
+      "favFood": [],
+      "hobbies": [],
+      "languages": [],
+      "hollydays": false,
+      "lunchtime": [
+        { "name": "Lundi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Mardi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Mercredi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Jeudi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Vendredi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Samedi", "start": "12", "stop": "13", "worked": false },
+        { "name": "Dimanche", "start": "12", "stop": "13", "worked": false }
+      ]
+    }
+  },
+  {
+    "infos": {
+      "username": "PaulPetit",
+      "firstname": "Paul",
+      "lastname": "Petit",
+      "avatar": "https://i.pravatar.cc/150",
+      "online": true,
+      "location": {
+        "type": "Point",
+        "coordinates": [3.0700, 50.6300]
+      }
+    },
+    "authentification": {
+      "email": "paul.petit@example.com",
+      "password": "motdepassesecurise6",
+      "token": "tokenaleatoire6666666666666666"
+    },
+    "description": {
+      "work": "Consultant",
+      "bio": "Expert en solutions innovantes pour les entreprises."
+    },
+    "preferences": {
+      "favBuddies": [],
+      "favRestaurant": [],
+      "favFood": [],
+      "hobbies": [],
+      "languages": [],
+      "hollydays": true,
+      "lunchtime": [
+        { "name": "Lundi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Mardi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Mercredi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Jeudi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Vendredi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Samedi", "start": "12", "stop": "13", "worked": false },
+        { "name": "Dimanche", "start": "12", "stop": "13", "worked": false }
+      ]
+    }
+  },
+  {
+    "infos": {
+      "username": "JulieRoux",
+      "firstname": "Julie",
+      "lastname": "Roux",
+      "avatar": "https://i.pravatar.cc/150",
+      "online": false,
+      "location": {
+        "type": "Point",
+        "coordinates": [3.0900, 50.6500]
+      }
+    },
+    "authentification": {
+      "email": "julie.roux@example.com",
+      "password": "motdepassesecurise7",
+      "token": "tokenaleatoire7777777777777777"
+    },
+    "description": {
+      "work": "Architecte",
+      "bio": "Conception de bâtiments durables et esthétiques."
+    },
+    "preferences": {
+      "favBuddies": [],
+      "favRestaurant": [],
+      "favFood": [],
+      "hobbies": [],
+      "languages": [],
+      "hollydays": false,
+      "lunchtime": [
+        { "name": "Lundi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Mardi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Mercredi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Jeudi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Vendredi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Samedi", "start": "12", "stop": "13", "worked": false },
+        { "name": "Dimanche", "start": "12", "stop": "13", "worked": false }
+      ]
+    }
+  },
+  {
+    "infos": {
+      "username": "DavidBlanc",
+      "firstname": "David",
+      "lastname": "Blanc",
+      "avatar": "https://i.pravatar.cc/150",
+      "online": true,
+      "location": {
+        "type": "Point",
+        "coordinates": [3.1100, 50.6100]
+      }
+    },
+    "authentification": {
+      "email": "david.blanc@example.com",
+      "password": "motdepassesecurise8",
+      "token": "tokenaleatoire8888888888888888"
+    },
+    "description": {
+      "work": "Commercial",
+      "bio": "Le client est au cœur de ma démarche."
+    },
+    "preferences": {
+      "favBuddies": [],
+      "favRestaurant": [],
+      "favFood": [],
+      "hobbies": [],
+      "languages": [],
+      "hollydays": true,
+      "lunchtime": [
+        { "name": "Lundi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Mardi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Mercredi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Jeudi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Vendredi", "start": "12", "stop": "13", "worked": true },
+        { "name": "Samedi", "start": "12", "stop": "13", "worked": false },
+        { "name": "Dimanche", "start": "12", "stop": "13", "worked": false }
+      ]
+    }
+  },
+  {
+    "infos": {
+      "username": "AliceMartin",
+      "firstname": "Alice",
+      "lastname": "Martin",
+      "avatar": "https://i.pravatar.cc/150",
+      "online": false,
+      "location": {
+        "type": "Point",
+        "coordinates": [3.0600, 50.6400]
+      }
+    },
+    "authentification": {
+      "email": "alice.martin@example.com",
+      "password": "motdepassesecurise9",
+      "token": "tokenaleatoire9999999999999999"
+    },
+    "description": {
+      "work": "Journaliste",
+      "bio": "L'information est un droit fondamental."
+    },
+    "preferences": {
+      "favBuddies": [],
+      "favRestaurant": [],
+      "favFood": [],
+      "hobbies": [],
+      "languages": [],
+      "hollydays": false,
+      "lunchtime": [
+        { "name": "Lundi", "start": "12", "stop
