@@ -11,17 +11,21 @@ router.get("/:token", (req, res) => {
   if (!token) {
     return res.json({ result: false, error: "Missing token" });
   }
-
-  // Recherche des réservations par userId
-  Reservations.find({ token: token })
+  //Trouver l'utilisateur correspondant au token
+  Users.findOne({ "authentification.token": token }).then((user) => {
+    if (!user) {
+      return res.json({ result: false, error: "Invalid token" });
+    }
+    Reservations.find({ users: user._id})
     .populate("users")
     .then((data) => {
-      if (data.length === 0) {
-        console.log(data);
-        return res.json({ result: false, error: "No reservations found" });
-      } else {
-        return res.json({ result: true, data });
-      }
+        if (data.length === 0) {
+            console.log(data);
+            return res.json({ result: false, error: "No reservations found" });
+        } else {
+            return res.json({ result: true, data });
+        }
+    });
     });
 });
 
