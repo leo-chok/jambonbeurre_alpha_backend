@@ -9,7 +9,7 @@ const messageSchema = mongoose.Schema({
 const conversationSchema = mongoose.Schema({
   users: [String],
   title: String,
-  message: [messageSchema],
+  messages: [messageSchema],
 });
 
 const Conversation = mongoose.model("chats", conversationSchema);
