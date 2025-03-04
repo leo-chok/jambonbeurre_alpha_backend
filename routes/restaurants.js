@@ -1,9 +1,9 @@
 var express = require("express");
 var router = express.Router();
-const Restaurants = require("../models/restaurant");
+const Restaurant = require("../models/restaurant");
 const GoogleRestaurants = require("../models/googlerestaurant");
 
-// Récupérer les restaurants depuis Google
+// ROUTE GET pour récupérer les restaurants depuis la base de données Google
 
 router.get("/", async (req, res) => {
   GoogleRestaurants.find().then((data) => {
@@ -19,10 +19,9 @@ router.get("/", async (req, res) => {
       ];
       let restaurantWebsite = restaurant.websiteUri;
       let restaurantOpeningHours = restaurant?.currentOpeningHours?.periods;
-      //console.log(restaurantOpeningHours);
 
-      // Sauvegarder les données au nouveau format plus léger
-      const formatedRestaurant = new Restaurants({
+      // Sauvegarder les données au nouveau format souhaité correspondant au schéma restaurant
+      const formatedRestaurant = new Restaurant({
         name: restaurantName,
         type: restaurantType,
         address: restaurantAdress,
@@ -39,11 +38,31 @@ router.get("/", async (req, res) => {
        formatedRestaurant.save();
     }
 
-    res.json({ result: true });
+    res.json({ result: true, data: data });
   });
 });
 
-// Route GET pour rechercher un restaurant par son nom
+// ROUTE GET pour pour récupérer tous les restaurants selon une distance donnée
+router.get("/near/:distance", function (req, res) {
+  const { longitude, latitude } = req.query;
+  Restaurant.find({
+    location: {
+      $near: {
+        $geometry: {
+          type: "Point",
+          coordinates: [longitude, latitude ],
+        },
+        $maxDistance: req.params.distance,
+      },
+    },
+  })
+    .then((data) => {
+      res.json({ result: true, restaurantsList: data });
+    });
+});
+
+
+// ROUTE GET pour rechercher un restaurant par son nom
 
 router.get("/search/:name", async (req, res) => {
   // Récupérer le paramètre name depuis l'URL
