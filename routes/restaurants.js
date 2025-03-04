@@ -2,58 +2,49 @@ var express = require("express");
 var router = express.Router();
 const Restaurants = require("../models/restaurant");
 const GoogleRestaurants = require("../models/googlerestaurant");
-let restaurantPhoto;
-let restaurantName;
-let restaurantType;
-let restaurantPriceRange;
-let restaurantAdress;
-let restaurantRating;
-let restaurantLocation;
-let restaurantWebsite;
-let restaurantIsOpen;
 
-// Route POST pour créer des restaurants depuis les données Google
 // Récupérer les restaurants depuis Google
+
 router.get("/", async (req, res) => {
   GoogleRestaurants.find().then((data) => {
     for (const restaurant of data) {
-      restaurantPhoto = restaurant.photos;
-      restaurantName = restaurant.displayName.text;
-      restaurantType = restaurant.primaryType;
-      restaurantPriceRange = restaurant.priceRange;
-      restaurantAdress = restaurant.formattedAddress;
-      restaurantRating = restaurant.rating;
-      restaurantLocation = restaurant.location;
-      restaurantWebsite = restaurant.websiteUri;
-      restaurantIsOpen = restaurant.currentOpeningHours;
-
-
+      let restaurantName = restaurant.displayName.text;
+      let restaurantType = restaurant.primaryType;
+      let restaurantPriceLevel = restaurant.priceLevel;
+      let restaurantAdress = restaurant.formattedAddress;
+      let restaurantRating = restaurant.rating;
+      let restaurantLocation = [
+        restaurant.location.latitude,
+        restaurant.location.longitude,
+      ];
+      let restaurantWebsite = restaurant.websiteUri;
+      let restaurantOpeningHours = restaurant?.currentOpeningHours?.periods;
+      //console.log(restaurantOpeningHours);
 
       // Sauvegarder les données au nouveau format plus léger
       const formatedRestaurant = new Restaurants({
-        photo: restaurantPhoto, //OK
         name: restaurantName,
         type: restaurantType,
-        priceRange: restaurantPriceRange,
-        address: restaurantAdress, //OK
-        rating: restaurantRating, //OK
-        location: restaurantLocation,
-        website: restaurantWebsite, //OK
-        openNow: restaurantIsOpen,
+        address: restaurantAdress,
+        rating: restaurantRating,
+        website: restaurantWebsite,
+        priceLevel: restaurantPriceLevel,
+        location: {
+          type: "Point",
+          coordinates: restaurantLocation,
+        },
+        OpeningHours: restaurantOpeningHours,
       });
 
-    // Sauvegarder le résultat dans la base de données restaurants avec une route POST ????
-
-
-      console.log(formatedRestaurant);
+       formatedRestaurant.save();
     }
 
-    res.json({ result: data });
+    res.json({ result: true });
   });
 });
 
-
 // Route GET pour rechercher un restaurant par son nom
+
 router.get("/search/:name", async (req, res) => {
   // Récupérer le paramètre name depuis l'URL
   const restaurantName = req.params.name;
@@ -68,7 +59,7 @@ router.get("/search/:name", async (req, res) => {
 
   // Rechercher dans la base de données avec une regex insensible à la casse
   const restaurant = await Restaurants.findOne({
-    "displayName.text": new RegExp(restaurantName, "i"), // Recherche sur displayName.text  A CHANGER
+    name: new RegExp(restaurantName, "i"), // Recherche sur displayName.text  
   });
 
   // Vérifier si un restaurant a été trouvé
