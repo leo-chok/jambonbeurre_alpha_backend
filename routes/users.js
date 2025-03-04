@@ -37,9 +37,9 @@ router.get("/near/:distance", function (req, res) {
     });
 });
 
-// Route récupération Utilisateur by USERNAME
-router.get("/:username", (req, res) => {
-  User.find({ "infos.username": req.params.username })
+// Route récupération Utilisateur by Token
+router.get("/:token", (req, res) => {
+  User.find({ "authentification.token": req.params.token })
     .select("infos description preferences")
     .then((data) => {
       res.json({ result: true, userInfos: data });
@@ -92,7 +92,7 @@ router.post("/signup", (req, res) => {
           favFood: [],
           hobbies: [],
           languages: [],
-          hollydays: false,
+          holidays: false,
           lunchtime: [
             {
               name: "Lundi",
@@ -196,7 +196,7 @@ router.post("/update", (req, res) => {
     favFood,
     hobbies,
     languages,
-    hollydays,
+    holidays,
     lunchtime,
   } = req.body;
 
@@ -339,13 +339,13 @@ router.post("/update", (req, res) => {
         }
       }
 
-      if (hollydays) {
+      if (holidays) {
         const data = await User.updateOne(
           { "authentification.token": token },
-          { "preferences.hollydays": hollydays }
+          { "preferences.holidays": holidays }
         );
         if (data.modifiedCount === 1) {
-          listModifications.push(hollydays);
+          listModifications.push(holidays);
         }
       }
 
@@ -433,48 +433,48 @@ const randomPoint = randomLocation.randomCirclePoint(P, R)
       favFood: [],
       hobbies: [],
       languages: [],
-      hollydays: false,
+      holidays: false,
       lunchtime: [
         {
           name: "Lundi",
-          start: "12",
-          stop: "13",
+          start: "12:00",
+          stop: "13:00",
           worked: true,
         },
         {
           name: "Mardi",
-          start: "12",
-          stop: "13",
+          start: "12:00",
+          stop: "13:00",
           worked: true,
         },
         {
           name: "Mercredi",
-          start: "12",
-          stop: "13",
+          start: "12:00",
+          stop: "13:00",
           worked: true,
         },
         {
           name: "Jeudi",
-          start: "12",
-          stop: "13",
+          start: "12:00",
+          stop: "13:00",
           worked: true,
         },
         {
           name: "Vendredi",
-          start: "12",
-          stop: "13",
+          start: "12:00",
+          stop: "13:00",
           worked: true,
         },
         {
           name: "Samedi",
-          start: "12",
-          stop: "13",
+          start: null,
+          stop: null,
           worked: false,
         },
         {
           name: "Dimanche",
-          start: "12",
-          stop: "13",
+          start: null,
+          stop: null,
           worked: false,
         },
       ],
