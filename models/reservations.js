@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+//change users en participants
 const reservationsSchema = mongoose.Schema({
 name : String,
 users: [{type: mongoose.Schema.Types.ObjectId, ref:'users'}], 
