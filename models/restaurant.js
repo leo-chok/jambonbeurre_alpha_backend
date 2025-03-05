@@ -18,7 +18,7 @@ const restaurantsSchema = mongoose.Schema({
     },
   },
   website: String,
-  OpeningHours: [
+  openingHours: [
     {
       open: {
         day: Number,

@@ -32,7 +32,7 @@ router.get("/all", async (req, res) => {
           type: "Point",
           coordinates: restaurantLocation,
         },
-        OpeningHours: restaurantOpeningHours,
+        openingHours: restaurantOpeningHours,
       });
 
        formatedRestaurant.save();
