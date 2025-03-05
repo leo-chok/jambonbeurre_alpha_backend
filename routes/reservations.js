@@ -1,62 +1,89 @@
 var express = require("express");
 var router = express.Router();
 const Reservations = require("../models/reservations");
-const { token } = require("morgan");
+const Users = require("../models/users");
+const Chats = require("../models/chats");
 
-//Permet d'afficher les réservations existantes dans mongoDb via son userId
-router.get("/:userId", (req, res) => {
-  const userId = req.params.userId;
+//Permet d'afficher les réservations existantes via son token
+router.get("/:token", (req, res) => {
+  const token = req.params.token;
 
-  if (!userId) {
-    return res.json({ result: false, error: "Missing userId" });
+  if (!token) {
+    return res.json({ result: false, error: "Missing token" });
   }
-
-  // Recherche des réservations par userId
-  Reservations.find({ users: userId })
+  //Trouver l'utilisateur correspondant au token
+  Users.findOne({ "authentification.token": token }).then((user) => {
+    if (!user) {
+      return res.json({ result: false, error: "Invalid token" });
+    }
+    Reservations.find({ users: user._id})
     .populate("users")
     .then((data) => {
-      if (data.length === 0) {
-        return res.json({ result: false, error: "No reservations found" });
-      } else {
-        return res.json({ result: true, data });
-      }
+        if (data.length === 0) {
+            console.log(data);
+            return res.json({ result: false, error: "No reservations found" });
+        } else {
+            return res.json({ result: true, data });
+        }
+    });
     });
 });
 
 //Permet d'ajouter des réservations
-router.post("/", (req, res) => {
+router.post("/add", (req, res) => {
   const { name, token, date, conversation } = req.body;
-
   if (!name || !token || !date || !conversation) {
-    res.json({ result: false, error: "Missing required fields" });
+    return res.json({ result: false, error: "Missing required fields" });
   }
   //Trouver l'utilisateur avec le token avant de créer reservation
-users.findOne({token}).then((user) => {
-    if(!user){
+  Users.findOne({ "authentification.token": token })
+    .then((user) => {
+      if (!user) {
         return res.json({ result: false, error: "Invalid token" });
-    }
-    const newReservation = new Reservations({
-        name,
-        users: [user._id],
-        date,
-        conversation: "65e01b8c4e3a2b3c4d5e6f79",
+      }
+      // Trouver le chat correspondant
+      Chats.findById(conversation).then((chats) => {
+        if (!chats) {
+          return res.json({ result: false, error: "Chat not found" });
+        }
+        // Créer la réservation après avoir trouvé le chat
+        const newReservation = new Reservations({
+          name,
+          users: [user._id],
+          date,
+          conversation: chats._id,
+        });
+        return newReservation
+          .save()
+          .then((newReservation) => {
+            res.json({ result: true, Reservations: newReservation });
+          })
+          .catch((error) => {
+            res.json({ result: false, error: error.message });
+          });
+      });
+    })
+    .catch((error) => {
+      res.json({ result: false, error: error.message });
     });
-    newReservation.save().then((newReservation) => {
-        res.json({ result: true, Reservations: newReservation });
-    });
-})
 });
 
-//supprimer une réservation
-router.delete("/", (req, res) => {
+//Supprimer une réservation par Id
+router.delete("/deleteUser", (req, res) => {
+  const { reservationId } = req.body;
+
+  if (!reservationId) {
+    return res.json({ result: false, error: "Reservation ID is required" });
+  }
+  console.log(reservationId);
   Reservations.deleteOne({
-    name: req.body.name,
+    _id: reservationId,
   }).then((data) => {
-      console.log(data)
+    console.log(data);
     if (data.deleteCount > 0) {
-     res.json({ result: true, message: "Reservation delete" });
+      return res.json({ result: true, message: "Reservation delete" });
     } else {
-        res.json({ result: false });
+      res.json({ result: false, message: "Reservation not found" });
     }
   });
 });
