@@ -7,8 +7,8 @@ const bcrypt = require("bcrypt");
 require("../models/connection");
 const User = require("../models/users");
 
-const { faker } = require('@faker-js/faker');
-const randomLocation = require('random-location')
+const { faker } = require("@faker-js/faker");
+const randomLocation = require("random-location");
 
 // Route pour récupérer tous les utilisateurs
 router.get("/all", function (req, res) {
@@ -96,44 +96,44 @@ router.post("/signup", (req, res) => {
           lunchtime: [
             {
               name: "Lundi",
-              start: "12",
-              stop: "13",
+              start: "12:00",
+              stop: "13:00",
               worked: true,
             },
             {
               name: "Mardi",
-              start: "12",
-              stop: "13",
+              start: "12:00",
+              stop: "13:00",
               worked: true,
             },
             {
               name: "Mercredi",
-              start: "12",
-              stop: "13",
+              start: "12:00",
+              stop: "13:00",
               worked: true,
             },
             {
               name: "Jeudi",
-              start: "12",
-              stop: "13",
+              start: "12:00",
+              stop: "13:00",
               worked: true,
             },
             {
               name: "Vendredi",
-              start: "12",
-              stop: "13",
+              start: "12:00",
+              stop: "13:00",
               worked: true,
             },
             {
               name: "Samedi",
-              start: "12",
-              stop: "13",
+              start: null,
+              stop: null,
               worked: false,
             },
             {
               name: "Dimanche",
-              start: "12",
-              stop: "13",
+              start: null,
+              stop: null,
               worked: false,
             },
           ],
@@ -199,6 +199,8 @@ router.post("/update", (req, res) => {
     holidays,
     lunchtime,
   } = req.body;
+
+console.log(holidays)
 
   User.findOne({ "authentification.token": token }).then(async (data) => {
     // Si utilisateur trouvé par ID
@@ -309,7 +311,7 @@ router.post("/update", (req, res) => {
         }
       }
 
-      if (favRestaurant) {
+      if (favFood) {
         const data = await User.updateOne(
           { "authentification.token": token },
           { "preferences.favFood": favFood }
@@ -339,7 +341,7 @@ router.post("/update", (req, res) => {
         }
       }
 
-      if (holidays) {
+      if (holidays !== undefined) {
         const data = await User.updateOne(
           { "authentification.token": token },
           { "preferences.holidays": holidays }
@@ -359,7 +361,7 @@ router.post("/update", (req, res) => {
         }
       }
 
-      res.json({ result: true, modifications: listModifications.length });
+      res.json({modifications: listModifications.length});
     } else {
       res.json({ result: false, error: "Can't find user by this Id" });
     }
@@ -397,13 +399,13 @@ router.post("/addfake", (req, res) => {
   const hash = uid2(16);
   const token = uid2(32);
   const P = {
-  latitude: 50.6490435,
-  longitude: 3.0644092
-}
+    latitude: 50.6490435,
+    longitude: 3.0644092,
+  };
 
-const R = 4000 // meters
+  const R = 4000; // meters
 
-const randomPoint = randomLocation.randomCirclePoint(P, R)
+  const randomPoint = randomLocation.randomCirclePoint(P, R);
 
   // Creation User
   const newUser = new User({
