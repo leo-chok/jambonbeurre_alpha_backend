@@ -5,7 +5,7 @@ const GoogleRestaurants = require("../models/googlerestaurant");
 
 // ROUTE GET pour récupérer les restaurants depuis la base de données Google
 
-router.get("/", async (req, res) => {
+router.get("/all", async (req, res) => {
   GoogleRestaurants.find().then((data) => {
     for (const restaurant of data) {
       let restaurantName = restaurant.displayName.text;
@@ -38,7 +38,7 @@ router.get("/", async (req, res) => {
        formatedRestaurant.save();
     }
 
-    res.json({ result: true, data: data });
+    res.json({ result: true, googleRestaurants: data });
   });
 });
 
@@ -77,7 +77,7 @@ router.get("/search/:name", async (req, res) => {
   }
 
   // Rechercher dans la base de données avec une regex insensible à la casse
-  const restaurant = await Restaurants.findOne({
+  const restaurant = await Restaurant.findOne({
     name: new RegExp(restaurantName, "i"), // Recherche sur displayName.text  
   });
 

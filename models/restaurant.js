@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const restaurantsSchema = mongoose.Schema({
-  // Here is your schema
+  // Schéma du restaurant avec uniquement les informations nécessaires pour notre application 
   name: String,
   type: String,
   priceLevel: String,
@@ -24,21 +24,11 @@ const restaurantsSchema = mongoose.Schema({
         day: Number,
         hour: Number,
         minute: Number,
-        // date: {
-        //   year: Number,
-        //   month: Number,
-        //   day: Number,
-        // },
       },
       close: {
         day: Number,
         hour: Number,
         minute: Number,
-        // date: {
-        //   year: Number,
-        //   month: Number,
-        //   day: Number,
-        // },
       },
     },
   ],
