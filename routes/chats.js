@@ -18,6 +18,7 @@ function getUerDataFromToken(localtoken) {
     return data;
   }); //then findOne
 } //function
+
 router.get("/chatTest", (req, res) => {
   getUerDataFromToken("").then((data) => {
     //console.log(data);
@@ -27,17 +28,20 @@ router.get("/chatTest", (req, res) => {
   });
 });
 
+//----------------cree Une Discussion---------------------------------------------
 router.post("/creeUneDiscussion", (req, res) => {
   // avec token1 token2 et title - retourne id de la discussion
   const token = req.body.token;
   let userIdHote;
   const userIdInvite = req.body.userIdInvite;
   const title = req.body.title;
+
   //recuperation du username à partir du token
   User.findOne({ "authentification.token": token }).then((dataUserHote) => {
     if (dataUserHote) {
       userIdHote = dataUserHote._id;
 
+      console.log("token trouvé");
       const newConversation = new Chat({
         users: [userIdHote, userIdInvite],
         title: title,
@@ -50,10 +54,11 @@ router.post("/creeUneDiscussion", (req, res) => {
           { users: userIdInvite },
           { title: title }
         ).then((dataChat) => {
-          res.json({ idDiscussion: dataChat._id });
+          res.json({ result: true, idDiscussion: dataChat._id });
         }); //then find
       }); //then save
     } //if
+    else res.json({ result: false, message: "le token n'est pas trouvé" });
   }); //findOne token1
 }); //route post creeUneDiscussion
 
@@ -63,14 +68,15 @@ router.get("/afficheUneDiscussion", (req, res) => {
   //avec id de la discussion - retourne la discussion.
   const idDiscussion = req.body.idDiscussion;
   const token = req.body.token;
-  let usernameHote;
+
+  //recuperation du username à partir du token
   User.findOne({ "authentification.token": token }).then((dataUserHote) => {
     if (dataUserHote) {
-      usernameHote = dataUserHote.infos.username;
       Chat.findById(idDiscussion).then((dataChat) => {
         res.json({ discussion: dataChat });
       }); //then Chat.findOne
     } //if
+    else res.json({ result: false, message: "le token n'est pas trouvé" });
   }); //User.findOne
 }); //get
 
@@ -80,21 +86,19 @@ router.post("/inviter", (req, res) => {
   //avec id de la discussion et User(invité) - ajoute un invité à la discussion.
   const idDiscussion = req.body.idDiscussion;
   const token = req.body.token;
-  let usernameHote;
-  const usernameInvite = req.body.username;
+  const idInvite = req.body.idInvite;
 
   //recuperation du username à partir du token
   User.findOne({ "authentification.token": token }).then((dataUserHote) => {
     if (dataUserHote) {
-      usernameHote = dataUserHote.infos.username;
-
       Chat.updateOne(
         { _id: idDiscussion },
-        { $push: { users: usernameInvite } }
+        { $push: { users: idInvite } }
       ).then((data) => {
-        res.json({ nouvelleInvite: usernameInvite });
+        res.json({ nouvelleInvite: idInvite });
       }); //then find
     } //if
+    else res.json({ result: false, message: "le token n'est pas trouvé" });
   }); //findOne token1
 }); //get
 
@@ -103,21 +107,22 @@ router.post("/inviter", (req, res) => {
 router.post("/creerUnMessage", (req, res) => {
   //avec id de discussion et User(emetteur du message) et le message- ajoute un message à la discussion.
   const idDiscussion = req.body.idDiscussion;
-
   const message = req.body.message;
   const token = req.body.token;
-  let usernameHote;
-console.log("helllo");
+  let idHote;
+
   //recuperation du username à partir du token
   User.findOne({ "authentification.token": token }).then((dataUserHote) => {
     if (dataUserHote) {
-      usernameHote = dataUserHote.infos.username;
-      console.log("usernameHote : " + usernameHote);
+      idHote = dataUserHote._id;
+      
+      //creation du message
       const newMessage = {
         message: message,
         date: new Date(),
-        sender: usernameHote,
+        idSender: idHote,
       };
+      //enregistrement du message
       Chat.updateOne(
         { _id: idDiscussion },
         { $push: { messages: newMessage } }
@@ -126,6 +131,7 @@ console.log("helllo");
         res.json({ nouveauMessage: req.body.message });
       }); //then find
     } //if
+    else res.json({ result: false, message: "le token n'est pas trouvé" });
   }); //findOne token1
 }); //get
 
@@ -135,34 +141,104 @@ router.get("/quitte", (req, res) => {
   //avec id de discussion et User - quitte la discussion.
   const idDiscussion = req.body.idDiscussion;
   const token = req.body.token;
-  let usernameHote;
+  let idHote;
+
   //recuperation du username à partir du token
   User.findOne({ "authentification.token": token }).then((dataUserHote) => {
     if (dataUserHote) {
-      usernameHote = dataUserHote.infos.username;
+      idHote = dataUserHote._id;
+      //supprime l'utilisateur de la discussion
+      Chat.updateOne({ _id: idDiscussion }, { $pull: { users: idHote } }).then(
+        (data) => {
+          
 
-      Chat.updateOne(
-        { _id: idDiscussion },
-        { $pull: { users: usernameHote } }
-      ).then((data) => {
-        res.json({ quitteLeChat: usernameHote });
-      }); //then find
+          //detruire la discussion si il n'y a plus personne
+          Chat.findById(idDiscussion).then((dataChat) => {
+            if (dataChat) {
+              if (dataChat.users.length === 0){//si il n'y a plus d'utilisateur
+                Chat.deleteOne({ _id: idDiscussion }).then(() => {
+                  
+                    console.log("ok");
+                    res.json({ result: true, message: "discussion effacé" });
+                  
+                });
+              }//if length == 0
+              else res.json({ quitteLeChat: idHote });
+            } //if datachat
+            else  res.json({ result: false, message: "la discussion n'est pas trouvé" });
+          }); //findById
+        
+        }
+      ); //then find
     } //if
+    else res.json({ result: false, message: "le token n'est pas trouvé" });
   }); //findOne token1
 }); //get
+/*
+//-------------supprime chat---------------------------------------
+router.get("/supChat", (req, res) => {
+  //avec id de discussion et User - quitte la discussion.
+  const idDiscussion = req.body.idDiscussion;
+  Chat.findById(idDiscussion).then((dataChat) => {
+    if (dataChat) {
+      if (dataChat.users.length === 0)
+        Chat.deleteOne({ _id: idDiscussion }).then(() => {
+          Chat.find().then((data) => {
+            console.log("ok");
+            res.json({ result: true, message: "discussion effacé" });
+          });
+        });
+    } //if
+    else  res.json({ result: false, message: "la discussion n'est pas trouvé" });
+  }); //findById
+}); //router
+*/
 
 //------------supprime un Message---------------------------------------------------------------
 
 router.get("/supMessage", (req, res) => {
   //avec id de discussion et Date - supprime un message.
   const idDiscussion = req.body.idDiscussion;
-  const date = req.body.date;
-  Chat.updateOne(
-    { _id: idDiscussion },
-    { $pull: { message: { date: date } } }
-  ).then((data) => {
-    res.json({ supMessage: true });
-  }); //then find
+  const idMessage = req.body.idMessage;
+  const token = req.body.token;
+  let idHote;
+
+  //recuperation du username à partir du token
+  User.findOne({ "authentification.token": token }).then((dataUserHote) => {
+    if (dataUserHote) {
+      idHote = dataUserHote._id;
+
+      //controle si idHote est bien propriétaire du message
+      Chat.findOne({ _id: idDiscussion }).then((dataChat) => {
+        if (dataChat) {
+          if (
+            dataChat.messages.some((element) => {
+              return element.idSender == idHote && element._id == idMessage;
+            })
+          ) {
+            Chat.updateOne(
+              { _id: idDiscussion },
+              { $pull: { messages: { _id: idMessage } } }
+            ).then((data) => {
+              res.json({ supMessage: true, data: data });
+              console.log(data);
+            }); //then update
+          } //if dataChat some
+          else
+            res.json({
+              result: false,
+              message: "le message n'est pas trouvé ou n'existe pas",
+            });
+        } //if dataChat
+        else
+          res.json({
+            result: false,
+            message: "la discussion n'est pas trouvé",
+          });
+      }); //then Chat.Find
+    } //if dataUserHote
+    else res.json({ result: false, message: "le token n'est pas trouvé" });
+  }); // then findOne
 }); //get
 
 module.exports = router;
