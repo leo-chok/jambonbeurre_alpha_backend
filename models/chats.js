@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const messageSchema = mongoose.Schema({
   message: String,
   date: Date,
-  sender: String,
+  idSender: String,
 });
 
 const conversationSchema = mongoose.Schema({

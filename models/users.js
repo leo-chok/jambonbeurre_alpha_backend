@@ -34,7 +34,7 @@ const userSchema = mongoose.Schema({
     favFood: [String],
     hobbies: [String],
     languages: [String],
-    hollydays: Boolean,
+    holidays: Boolean,
     lunchtime: [
       {
         name: String,
