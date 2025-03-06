@@ -14,8 +14,8 @@ router.get("/all", async (req, res) => {
       let restaurantAdress = restaurant.formattedAddress;
       let restaurantRating = restaurant.rating;
       let restaurantLocation = [
-        restaurant.location.latitude,
         restaurant.location.longitude,
+        restaurant.location.latitude,
       ];
       let restaurantWebsite = restaurant.websiteUri;
       let restaurantOpeningHours = restaurant?.currentOpeningHours?.periods;
