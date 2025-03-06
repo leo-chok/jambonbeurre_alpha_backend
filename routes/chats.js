@@ -28,7 +28,7 @@ router.get("/chatTest", (req, res) => {
   });
 });
 
-//----------------cree Une Discussion---------------------------------------------
+//----------------créer Une Discussion---------------------------------------------
 router.post("/creeUneDiscussion", (req, res) => {
   // avec token1 token2 et title - retourne id de la discussion
   const token = req.body.token;
@@ -64,7 +64,7 @@ router.post("/creeUneDiscussion", (req, res) => {
 
 //-----------affiche Une Discussion--------------------------------------------------------
 
-router.get("/afficheUneDiscussion", (req, res) => {
+router.post("/afficheUneDiscussion", (req, res) => {
   //avec id de la discussion - retourne la discussion.
   const idDiscussion = req.body.idDiscussion;
   const token = req.body.token;
@@ -240,5 +240,28 @@ router.get("/supMessage", (req, res) => {
     else res.json({ result: false, message: "le token n'est pas trouvé" });
   }); // then findOne
 }); //get
+
+//---------------renvoie les discussions------------------------------------------------
+//    titre personne
+router.post("/getAllChat", (req, res) => {
+  const token = req.body.token;
+  let idHote;
+
+  User.findOne({ "authentification.token": token }).then((dataUserHote) => {
+    if (dataUserHote) {
+      idHote = dataUserHote._id;
+  
+      //controle si idHote est bien propriétaire du message
+      Chat.find({ users: idHote }).then((dataChat) => {
+        if (dataChat.length !==0)  {
+          console.log(dataChat);
+          res.json({ result: true, discussion: dataChat });
+        }//if datachat
+        else res.json({ result: false, message: "pas de discussion trouvé" });
+      });//Chat.find
+    }//if dataUserHote
+    else res.json({ result: false, message: "le token n'est pas trouvé" });
+  });//User.findOne
+  });//router.get
 
 module.exports = router;
