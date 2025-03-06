@@ -12,11 +12,12 @@ router.get("/:token", (req, res) => {
   if (!token) {
     return res.json({ result: false, error: "Missing token" });
   }
-  //Trouver l'utilisateur correspondant au token
+  //Trouve l'utilisateur associé au token
   Users.findOne({ "authentification.token": token }).then((user) => {
     if (!user) {
       return res.json({ result: false, error: "Invalid token" });
     }
+    //Recherche les réservations associées à cet utilisateur
     Reservations.find({ users: user._id })
       .populate("users")
       .then((data) => {
@@ -29,45 +30,90 @@ router.get("/:token", (req, res) => {
       });
   });
 });
-//---- Permet d'ajouter des réservations
+//---- Permet d'ajouter une réservation
 router.post("/add", (req, res) => {
+  console.log("Données reçues dans le body:", req.body);
   const { name, token, date, conversation, restaurantId } = req.body;
   if (!name || !token || !date || !conversation || !restaurantId) {
     return res.json({ result: false, error: "Missing required fields" });
   }
-  //Trouver l'utilisateur avec le token avant de créer reservation
+  //Trouve l'utilisateur correspondant au token
   Users.findOne({ "authentification.token": token })
     .then((user) => {
       if (!user) {
         return res.json({ result: false, error: "Invalid token" });
       }
-      // Trouver le chat correspondant
+      //Recherche le chat correspondant à la réservation
       Chats.findById(conversation).then((chats) => {
         if (!chats) {
           return res.json({ result: false, error: "Chat not found" });
         }
-        // Créer la réservation après avoir trouvé le chat
-        const newReservation = new Reservations({
-          name,
-          users: [user._id],
-          date,
-          conversation: chats._id,
-        });
-        return newReservation
-          .save()
-          .then((newReservation) => {
-            res.json({ result: true, Reservations: newReservation });
-          })
-          .catch((error) => {
-            res.json({ result: false, error: error.message });
+
+        Restaurants.findById(restaurantId).then((restaurant) => {
+          if (!restaurant) {
+            return res.json({ result: false, error: "Restaurant not found" });
+          }
+
+          const newReservation = new Reservations({
+            name: restaurant.name,
+            users: [user._id], //L'utilisateur qui a crée la réservation est ajouté comme participant
+            date,
+            conversation: chats._id, //Conversation liée à cette réservation
+            restaurantId: restaurant._id,
           });
+
+          return newReservation
+            .save()
+            .then((newReservation) => {
+              res.json({ result: true, Reservations: newReservation });
+            })
+            .catch((error) => {
+              res.json({ result: false, error: error.message });
+            });
+        });
       });
     })
     .catch((error) => {
       res.json({ result: false, error: error.message });
     });
 });
+//---- Inviter un utilisateur à une réservation
+router.post("/invite", (req, res) => {
+  const { reservationId, userId } = req.body;
 
+  if (!reservationId || !userId) {
+    return res.json({
+      result: false,
+      error: "Reservation ID and User ID are required",
+    });
+  }
+  Reservations.findById(reservationId).then((reservation) => {
+    if (!reservation) {
+      return res.json({ result: false, error: "Reservation not found" });
+    }
+    Users.findById(userId).then((user) => {
+      if (!user) {
+        return res.json({ result: false, error: "User not found" });
+      }
+      Chats.findById(conversation).then((chats) => {
+        if (!chats) {
+          return res.json({ result: false, error: "Chat not found" });
+        }
+        // Vérifie si l'utilisateur est déjà dans la réservation
+        if (reservation.users.indexOf(userId) !== -1) {
+          return res.json({
+            result: false,
+            error: "User already in reservation",
+          });
+        }
+        reservation.users.push(userId);
+        reservation.save().then((data) => {
+          return res.json({ result: true, data });
+        });
+      });
+    });
+  });
+});
 
 //----- Supprimer une réservation par Id
 router.delete("/deleteUser", (req, res) => {
@@ -76,7 +122,7 @@ router.delete("/deleteUser", (req, res) => {
   if (!reservationId) {
     return res.json({ result: false, error: "Reservation ID is required" });
   }
-  console.log(reservationId);
+
   Reservations.deleteOne({
     _id: reservationId,
   }).then((data) => {
@@ -103,7 +149,7 @@ router.delete("/leaveReservation", (req, res) => {
     if (!reservation) {
       return res.json({ result: false, error: "Reservation not found" });
     }
-    // Vérifie si l'utilisateur fait partie de la réservation
+    // Vérifie si l'utilisateur fait bien partie de cette réservation
     if (reservation.users.indexOf(userId) === -1) {
       return res.json({ result: false, error: "User not in reservation" });
     }
