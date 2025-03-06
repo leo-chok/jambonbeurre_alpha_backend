@@ -19,7 +19,7 @@ router.get("/all", function (req, res) {
 
 // Route pour récupérer tous les utilisateurs sous une distance donnée
 router.get("/near/:distance", function (req, res) {
-  const { latitude, longitude } = req.query;
+  const { longitude, latitude } = req.query;
   User.find({
     "infos.location": {
       $near: {
@@ -200,7 +200,7 @@ router.post("/update", (req, res) => {
     lunchtime,
   } = req.body;
 
-console.log(holidays)
+  console.log(holidays);
 
   User.findOne({ "authentification.token": token }).then(async (data) => {
     // Si utilisateur trouvé par ID
@@ -361,7 +361,7 @@ console.log(holidays)
         }
       }
 
-      res.json({modifications: listModifications.length});
+      res.json({ modifications: listModifications.length });
     } else {
       res.json({ result: false, error: "Can't find user by this Id" });
     }
@@ -417,7 +417,7 @@ router.post("/addfake", (req, res) => {
       online: true,
       location: {
         type: "Point",
-        coordinates: [randomPoint.latitude, randomPoint.longitude],
+        coordinates: [randomPoint.longitude, randomPoint.latitude],
       },
     },
     authentification: {
