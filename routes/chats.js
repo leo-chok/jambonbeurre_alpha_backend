@@ -30,7 +30,7 @@ router.get("/chatTest", (req, res) => {
 
 //----------------créer Une Discussion---------------------------------------------
 router.post("/creeUneDiscussion", (req, res) => {
-  // avec token1 token2 et title - retourne id de la discussion
+  // avec token du createur, userId de invité et title - retourne id de la discussion
   const token = req.body.token;
   let userIdHote;
   const userIdInvite = req.body.userIdInvite;
