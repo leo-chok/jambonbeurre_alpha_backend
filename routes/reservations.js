@@ -53,15 +53,19 @@ router.post("/add", (req, res) => {
           if (!restaurant) {
             return res.json({ result: false, error: "Restaurant not found" });
           }
-
+          const newConversation = new Chats({
+            users: [user._id],
+            title: "",
+            messages: [],
+          });
           const newReservation = new Reservations({
             name: restaurant.name,
             users: [user._id], //L'utilisateur qui a crée la réservation est ajouté comme participant
             date,
-            conversation: chats._id, //Conversation liée à cette réservation
+            conversation: newConversation._id, //Conversation liée à cette réservation
             restaurantId: restaurant._id,
           });
-
+          newConversation.save();
           return newReservation
             .save()
             .then((newReservation) => {
