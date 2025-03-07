@@ -6,7 +6,7 @@ const fs = require("fs");
 
 // Ajouter un avatar via la caméra
 router.post("/upload", async (req, res) => {
-    console.log(req.files)
+    // console.log(req.files)
   const photoPath = `./tmp/${uniqid()}.jpg`;
   const resultMove = await req.files.photoFromFront.mv(photoPath);
   const resultCloudinary = await cloudinary.uploader.upload(photoPath);
