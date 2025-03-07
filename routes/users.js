@@ -200,7 +200,6 @@ router.post("/update", (req, res) => {
     lunchtime,
   } = req.body;
 
-  console.log(holidays);
 
   User.findOne({ "authentification.token": token }).then(async (data) => {
     // Si utilisateur trouvé par ID
