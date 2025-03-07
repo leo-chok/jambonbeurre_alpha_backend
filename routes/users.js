@@ -156,7 +156,7 @@ router.post("/signup", (req, res) => {
 });
 
 // Route de Signin (Vérification utilisateur)
-router.get("/signin", (req, res) => {
+router.post("/signin", (req, res) => {
   // Vérification si les champs sont remplis
   if (!checkBody(req.body, ["email", "password"])) {
     res.json({ result: false, error: "Missing or empty fields" });
