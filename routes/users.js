@@ -46,6 +46,20 @@ router.get("/:token", (req, res) => {
     });
 });
 
+// Route récupération Utilisateur by Object_Id
+router.get("/:id", (req, res) => {
+  User.find({ _id : req.params.id })
+    .select("infos description preferences")
+    .then((data) => {
+      if (data) {
+      res.json({ result: true, userInfos: data });
+
+      }else{
+      res.json({ result: false, userInfos: "User not found" });
+      }
+    });
+});
+
 // Route de Signup (création d'un utilisateur)
 router.post("/signup", (req, res) => {
   // Vérification si les champs sont remplis
@@ -74,7 +88,7 @@ router.post("/signup", (req, res) => {
           online: true,
           location: {
             type: "Point",
-            coordinates: [50.6490435, 3.0644092],
+            coordinates: [3.0644092, 50.6490435],
           },
         },
         authentification: {
