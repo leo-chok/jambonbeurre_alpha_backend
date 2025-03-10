@@ -42,20 +42,23 @@ router.get("/:token", (req, res) => {
   User.find({ "authentification.token": req.params.token })
     .select("infos description preferences")
     .then((data) => {
-      res.json({ result: true, userInfos: data });
+      if (data.length !== 0) {
+        res.json({ result: true, userInfos: data });
+      } else {
+        res.json({ result: false, userInfos: "User not found" });
+      }
     });
 });
 
 // Route récupération Utilisateur by Object_Id
-router.get("/:id", (req, res) => {
-  User.findById(req.params.id )
+router.get("/other/:id", (req, res) => {
+  User.findById(req.params.id)
     .select("infos description preferences")
     .then((data) => {
       if (data) {
-      res.json({ result: true, userInfos: data });
-
-      }else{
-      res.json({ result: false, userInfos: "User not found" });
+        res.json({ result: true, userInfos: data });
+      } else {
+        res.json({ result: false, userInfos: "User not found" });
       }
     });
 });
@@ -213,7 +216,6 @@ router.post("/update", (req, res) => {
     holidays,
     lunchtime,
   } = req.body;
-
 
   User.findOne({ "authentification.token": token }).then(async (data) => {
     // Si utilisateur trouvé par ID
