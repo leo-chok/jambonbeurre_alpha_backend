@@ -42,7 +42,7 @@ router.get("/restaurant/:restaurantId", (req, res) => {
       if (!restaurant) {
         return res.json({ result: false, error: "Restaurant not found" });
       }
-      Reservations.find({ restaurantId })
+      Reservations.find({ restaurants: restaurantId })
         .populate("users")
         .select('infos')
         .then((data) => {
@@ -74,8 +74,8 @@ router.get("/user/:userId", (req, res) => {
           return res.json({ result: true, data });
         }
       });
-  })
-})
+  });
+});
 //------------------- Permet d'ajouter une réservation ------------------------
 router.post("/add", (req, res) => {
   const { name, token, date, conversation, restaurantId } = req.body;
@@ -106,9 +106,9 @@ router.post("/add", (req, res) => {
           const newReservation = new Reservations({
             name: restaurant.name,
             users: [user._id], //L'utilisateur qui a crée la réservation est ajouté comme participant
-            date,
+            date: date,
             conversation: newConversation._id, //Conversation liée à cette réservation
-            restaurantId: restaurant._id,
+            restaurants: restaurant._id,
           });
           newConversation.save();
           return newReservation

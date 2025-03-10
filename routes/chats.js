@@ -39,26 +39,25 @@ router.post("/creeUneDiscussion", (req, res) => {
   //recuperation du username à partir du token
   User.findOne({ "authentification.token": token }).then((dataUserHote) => {
     if (!dataUserHote) {
-      return  res.json({ result: false, message: "le token n'est pas trouvé" });
-    } 
-      console.log("token trouvé");
-      userIdHote = dataUserHote._id;
-      let tableauDesUsers = userIdInvite;
-      console.log(tableauDesUsers);
-      tableauDesUsers.push(userIdHote.toString()); //ajout de l'hote , transforme objectId en string
+      return res.json({ result: false, message: "le token n'est pas trouvé" });
+    }
+    console.log("token trouvé");
+    userIdHote = dataUserHote._id;
+    let tableauDesUsers = userIdInvite;
+    console.log(tableauDesUsers);
+    tableauDesUsers.push(userIdHote.toString()); //ajout de l'hote , transforme objectId en string
 
-      console.log(tableauDesUsers);
-      const newConversation = new Chat({
-        users: tableauDesUsers,
-        title: title,
-        messages: [],
-      });
-      //creation d'une discussion
-      newConversation.save().then((data) => {
-        console.log(data);
-        res.json({ idDiscussion: data });
-      }); //then save
- 
+    console.log(tableauDesUsers);
+    const newConversation = new Chat({
+      users: tableauDesUsers,
+      title: title,
+      messages: [],
+    });
+    //creation d'une discussion
+    newConversation.save().then((data) => {
+      console.log(data);
+      res.json({ Discussion: data });
+    }); //then save
   }); //findOne token1
 }); //route post creeUneDiscussion
 
@@ -71,13 +70,13 @@ router.post("/afficheUneDiscussion", (req, res) => {
 
   //recuperation du username à partir du token
   User.findOne({ "authentification.token": token }).then((dataUserHote) => {
-    if (dataUserHote) {
-      console.log("token trouvé");
-      Chat.findById(idDiscussion).then((dataChat) => {
-        res.json({ discussion: dataChat });
-      }); //then Chat.findOne
+    if (!dataUserHote) {
+      return res.json({ result: false, message: "le token n'est pas trouvé" });
     } //if
-    else res.json({ result: false, message: "le token n'est pas trouvé" });
+    console.log("token trouvé");
+    Chat.findById(idDiscussion).then((dataChat) => {
+      res.json({ discussion: dataChat });
+    }); //then Chat.findOne
   }); //User.findOne
 }); //get
 
@@ -92,14 +91,13 @@ router.post("/inviter", (req, res) => {
   //recuperation du username à partir du token
   User.findOne({ "authentification.token": token }).then((dataUserHote) => {
     if (dataUserHote) {
-      Chat.updateOne(
-        { _id: idDiscussion },
-        { $push: { users: idInvite } }
-      ).then((data) => {
-        res.json({ nouvelleInvite: idInvite });
-      }); //then find
+      return res.json({ result: false, message: "le token n'est pas trouvé" });
     } //if
-    else res.json({ result: false, message: "le token n'est pas trouvé" });
+    Chat.updateOne({ _id: idDiscussion }, { $push: { users: idInvite } }).then(
+      (data) => {
+        res.json({ nouvelleInvite: idInvite });
+      }
+    ); //then find
   }); //findOne token1
 }); //get
 
@@ -115,28 +113,28 @@ router.post("/creerUnMessage", (req, res) => {
 
   //recuperation du username à partir du token
   User.findOne({ "authentification.token": token }).then((dataUserHote) => {
-    if (dataUserHote) {
-      idHote = dataUserHote._id;
-      userNameHote = dataUserHote.infos.username;
-
-      //creation du message
-      const newMessage = {
-        message: message,
-        date: new Date(),
-        idSender: idHote,
-        userName: userNameHote,
-        avatar: dataUserHote.infos.avatar,
-      };
-      //enregistrement du message
-      Chat.updateOne(
-        { _id: idDiscussion },
-        { $push: { messages: newMessage } }
-      ).then((data) => {
-        console.log(data);
-        res.json({ nouveauMessage: req.body.message });
-      }); //then find
+    if (!dataUserHote) {
+      return res.json({ result: false, message: "le token n'est pas trouvé" });
     } //if
-    else res.json({ result: false, message: "le token n'est pas trouvé" });
+    idHote = dataUserHote._id;
+    userNameHote = dataUserHote.infos.username;
+
+    //creation du message
+    const newMessage = {
+      message: message,
+      date: new Date(),
+      idSender: idHote,
+      userName: userNameHote,
+      avatar: dataUserHote.infos.avatar,
+    };
+    //enregistrement du message
+    Chat.updateOne(
+      { _id: idDiscussion },
+      { $push: { messages: newMessage } }
+    ).then((data) => {
+      console.log(data);
+      res.json({ nouveauMessage: req.body.message });
+    }); //then find
   }); //findOne token1
 }); //get
 
@@ -150,33 +148,32 @@ router.get("/quitte", (req, res) => {
 
   //recuperation du username à partir du token
   User.findOne({ "authentification.token": token }).then((dataUserHote) => {
-    if (dataUserHote) {
-      idHote = dataUserHote._id;
-      //supprime l'utilisateur de la discussion
-      Chat.updateOne({ _id: idDiscussion }, { $pull: { users: idHote } }).then(
-        (data) => {
-          //detruire la discussion si il n'y a plus personne
-          Chat.findById(idDiscussion).then((dataChat) => {
-            if (dataChat) {
-              if (dataChat.users.length === 0) {
-                //si il n'y a plus d'utilisateur
-                Chat.deleteOne({ _id: idDiscussion }).then(() => {
-                  console.log("ok");
-                  res.json({ result: true, message: "discussion effacé" });
-                });
-              } //if length == 0
-              else res.json({ quitteLeChat: idHote });
-            } //if datachat
-            else
-              res.json({
-                result: false,
-                message: "la discussion n'est pas trouvé",
-              });
-          }); //findById
-        }
-      ); //then find
+    if (!dataUserHote) {
+      return res.json({ result: false, message: "le token n'est pas trouvé" });
     } //if
-    else res.json({ result: false, message: "le token n'est pas trouvé" });
+    idHote = dataUserHote._id;
+    //supprime l'utilisateur de la discussion
+    Chat.updateOne({ _id: idDiscussion }, { $pull: { users: idHote } }).then(
+      (data) => {
+        //detruire la discussion si il n'y a plus personne
+        Chat.findById(idDiscussion).then((dataChat) => {
+          if (!dataChat) {
+            return res.json({
+              result: false,
+              message: "la discussion n'est pas trouvé",
+            });
+          } //if
+          if (dataChat.users.length === 0) {
+            //si il n'y a plus d'utilisateur
+            Chat.deleteOne({ _id: idDiscussion }).then(() => {
+              console.log("ok");
+              res.json({ result: true, message: "discussion effacé" });
+            });
+          } //if length == 0
+          else res.json({ quitteLeChat: idHote });
+        }); //findById
+      }
+    ); //then find
   }); //findOne token1
 }); //get
 /*
@@ -210,41 +207,41 @@ router.get("/supMessage", (req, res) => {
 
   //recuperation du username à partir du token
   User.findOne({ "authentification.token": token }).then((dataUserHote) => {
-    if (dataUserHote) {
-      idHote = dataUserHote._id;
-      console.log("controle token ok, id : " + idHote);
-      //controle si idHote est bien propriétaire du message
-      Chat.findOne({ _id: idDiscussion }).then((dataChat) => {
-        if (dataChat) {
-          console.log("discussion trouvée");
-          if (
-            dataChat.messages.some((element) => {
-              return element.idSender == idHote && element._id == idMessage;
-            })
-          ) {
-            console.log("message trouvé et bien proprietaire");
-            Chat.updateOne(
-              { _id: idDiscussion },
-              { $pull: { messages: { _id: idMessage } } }
-            ).then((data) => {
-              res.json({ supMessage: true, data: data });
-              console.log(data);
-            }); //then update
-          } //if dataChat some
-          else
-            res.json({
-              result: false,
-              message: "le message n'est pas trouvé ou n'existe pas",
-            });
-        } //if dataChat
-        else
-          res.json({
-            result: false,
-            message: "la discussion n'est pas trouvé",
-          });
-      }); //then Chat.Find
+    if (!dataUserHote) {
+      return res.json({ result: false, message: "le token n'est pas trouvé" });
     } //if dataUserHote
-    else res.json({ result: false, message: "le token n'est pas trouvé" });
+    idHote = dataUserHote._id;
+    console.log("controle token ok, id : " + idHote);
+    //controle si idHote est bien propriétaire du message
+    Chat.findOne({ _id: idDiscussion }).then((dataChat) => {
+      if (!dataChat) {
+        return res.json({
+          result: false,
+          message: "la discussion n'est pas trouvé",
+        });
+      } //if dataChat
+
+      console.log("discussion trouvée");
+      if (
+        dataChat.messages.some((element) => {
+          return element.idSender == idHote && element._id == idMessage;
+        })
+      ) {
+        console.log("message trouvé et bien proprietaire");
+        Chat.updateOne(
+          { _id: idDiscussion },
+          { $pull: { messages: { _id: idMessage } } }
+        ).then((data) => {
+          res.json({ supMessage: true, data: data });
+          console.log(data);
+        }); //then update
+      } //if dataChat some
+      else
+        res.json({
+          result: false,
+          message: "le message n'est pas trouvé ou n'existe pas",
+        });
+    }); //then Chat.Find
   }); // then findOne
 }); //get
 
@@ -255,30 +252,28 @@ router.post("/getAllChat", (req, res) => {
   let idHote;
 
   User.findOne({ "authentification.token": token }).then((dataUserHote) => {
-    if (dataUserHote) {
-      idHote = dataUserHote._id;
-
-      //controle si idHote est bien propriétaire du message
-      Chat.find({ users: idHote }).then((dataChat) => {
-        if (dataChat.length !== 0) {
-          console.log(dataChat);
-          res.json({ result: true, discussion: dataChat });
-        } //if datachat
-        else res.json({ result: false, message: "pas de discussion trouvé" });
-      }); //Chat.find
+    if (!dataUserHote) {
+      return res.json({ result: false, message: "le token n'est pas trouvé" });
     } //if dataUserHote
-    else res.json({ result: false, message: "le token n'est pas trouvé" });
+    idHote = dataUserHote._id;
+    //controle si idHote est bien propriétaire du message
+    Chat.find({ users: idHote }).then((dataChat) => {
+      if (dataChat.length === 0) {
+        return res.json({ result: false, message: "pas de discussion trouvé" });
+      } //if datachat
+      console.log(dataChat);
+      res.json({ result: true, discussion: dataChat });
+    }); //Chat.find
   }); //User.findOne
 }); //router.get
-
 
 //---------------renvoie tous les utilisateurs pour recuperer les noms et avatars----------------------
 router.get("/allUsers", function (req, res) {
   User.find()
-  .select("infos")
-  .then((data) => {
-    console.log("get all users");
-    res.json({ result: true, listUsers: data });
-  });
+    .select("infos")
+    .then((data) => {
+      console.log("get all users");
+      res.json({ result: true, listUsers: data });
+    });
 });
 module.exports = router;
