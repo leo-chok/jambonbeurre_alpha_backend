@@ -48,7 +48,7 @@ router.get("/:token", (req, res) => {
 
 // Route récupération Utilisateur by Object_Id
 router.get("/:id", (req, res) => {
-  User.find({ _id : req.params.id })
+  User.findById(req.params.id )
     .select("infos description preferences")
     .then((data) => {
       if (data) {
