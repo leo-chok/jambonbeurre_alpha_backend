@@ -17,6 +17,7 @@ const restaurantsSchema = mongoose.Schema({
       required: true,
     },
   },
+  directionUri : String,
   website: String,
   openingHours: [
     {
