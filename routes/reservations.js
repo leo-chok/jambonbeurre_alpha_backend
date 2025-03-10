@@ -36,22 +36,24 @@ router.get("/restaurant/:restaurantId", (req, res) => {
   if (!restaurantId) {
     return res.json({ result: false, error: "Missing restaurant ID" });
   }
-  Restaurants.findById(restaurantId).then((restaurant) => {
-    if (!restaurant) {
-      return res.json({ result: false, error: "Restaurant not found" });
-    }
-    Reservations.find({ restaurants: restaurantId })
-      .populate("users")
-      .select("infos")
-      .then((data) => {
-        if (data.length === 0) {
-          return res.json({ result: false, error: "No reservations found" });
-        } else {
-          return res.json({ result: true, data });
-        }
-      });
-  });
-});
+  Restaurants
+    .findById(restaurantId)
+    .then((restaurant) => {
+      if (!restaurant) {
+        return res.json({ result: false, error: "Restaurant not found" });
+      }
+      Reservations.find({ restaurants: restaurantId })
+        .populate("users")
+        .select('infos')
+        .then((data) => {
+          if (data.length === 0) {
+            return res.json({ result: false, error: "No reservations found" });
+          } else {
+            return res.json({ result: true, data });
+          }
+        });
+    })
+})
 //------------------- Permet d'afficher les reservations via usersID ------------------------
 router.get("/user/:userId", (req, res) => {
   const userId = req.params.userId;
@@ -104,7 +106,7 @@ router.post("/add", (req, res) => {
           const newReservation = new Reservations({
             name: restaurant.name,
             users: [user._id], //L'utilisateur qui a crée la réservation est ajouté comme participant
-            date,
+            date: date,
             conversation: newConversation._id, //Conversation liée à cette réservation
             restaurants: restaurant._id,
           });
