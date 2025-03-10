@@ -19,6 +19,7 @@ router.get("/all", async (req, res) => {
       ];
       let restaurantWebsite = restaurant.websiteUri;
       let restaurantOpeningHours = restaurant?.currentOpeningHours?.periods;
+      let restaurantDirectionUri = restaurant.googleMapsLinks.directionsUri;
 
       // Sauvegarder les données au nouveau format souhaité correspondant au schéma restaurant
       const formatedRestaurant = new Restaurant({
@@ -32,6 +33,7 @@ router.get("/all", async (req, res) => {
           type: "Point",
           coordinates: restaurantLocation,
         },
+        directionUri: restaurantDirectionUri,
         openingHours: restaurantOpeningHours,
       });
 
