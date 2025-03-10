@@ -5,7 +5,7 @@ const Users = require("../models/users");
 const Chats = require("../models/chats");
 const Restaurants = require("../models/restaurant");
 
-//----- Permet d'afficher les réservations existantes via son token
+//------------------- Permet d'afficher les réservations existantes via son token ------------------------
 router.get("/:token", (req, res) => {
   const token = req.params.token;
 
@@ -30,9 +30,54 @@ router.get("/:token", (req, res) => {
       });
   });
 });
-//---- Permet d'ajouter une réservation
+//------------------- Permet d'afficher les reservations via restaurantsID ------------------------
+router.get("/restaurant/:restaurantId", (req, res) => {
+  const restaurantId = req.params.restaurantId;
+  if (!restaurantId) {
+    return res.json({ result: false, error: "Missing restaurant ID" });
+  }
+  Restaurants
+    .findById(restaurantId)
+    .then((restaurant) => {
+      if (!restaurant) {
+        return res.json({ result: false, error: "Restaurant not found" });
+      }
+      Reservations.find({ restaurantId })
+        .populate("users")
+        .select('infos')
+        .then((data) => {
+          if (data.length === 0) {
+            return res.json({ result: false, error: "No reservations found" });
+          } else {
+            return res.json({ result: true, data });
+          }
+        });
+    })
+})
+//------------------- Permet d'afficher les reservations via usersID ------------------------
+router.get("/user/:userId", (req, res) => {
+  const userId = req.params.userId;
+  if (!userId) {
+    return res.json({ result: false, error: "Missing user ID" });
+  }
+  Users.findById(userId).then((user) => {
+    if (!user) {
+      return res.json({ result: false, error: "User not found" });
+    }
+    Reservations.find({ users: userId })
+      .populate("users")
+      .select("infos")
+      .then((data) => {
+        if (data.length === 0) {
+          return res.json({ result: false, error: "No reservations found" });
+        } else {
+          return res.json({ result: true, data });
+        }
+      });
+  })
+})
+//------------------- Permet d'ajouter une réservation ------------------------
 router.post("/add", (req, res) => {
-  console.log("Données reçues dans le body:", req.body);
   const { name, token, date, conversation, restaurantId } = req.body;
   if (!name || !token || !date || !conversation || !restaurantId) {
     return res.json({ result: false, error: "Missing required fields" });
@@ -81,45 +126,26 @@ router.post("/add", (req, res) => {
       res.json({ result: false, error: error.message });
     });
 });
-//---- Inviter un utilisateur à une réservation
+
+//------------------- Inviter un utilisateur à une réservation ------------------------
 router.post("/invite", (req, res) => {
   const { reservationId, userId } = req.body;
-
-  if (!reservationId || !userId) {
-    return res.json({
-      result: false,
-      error: "Reservation ID and User ID are required",
-    });
-  }
   Reservations.findById(reservationId).then((reservation) => {
     if (!reservation) {
-      return res.json({ result: false, error: "Reservation not found" });
+      return res.json({ result: false, error: "Réservation introuvable" });
     }
-    Users.findById(userId).then((user) => {
-      if (!user) {
-        return res.json({ result: false, error: "User not found" });
-      }
-      Chats.findById(conversation).then((chats) => {
-        if (!chats) {
-          return res.json({ result: false, error: "Chat not found" });
-        }
-        // Vérifie si l'utilisateur est déjà dans la réservation
-        if (reservation.users.indexOf(userId) !== -1) {
-          return res.json({
-            result: false,
-            error: "User already in reservation",
-          });
-        }
-        reservation.users.push(userId);
-        reservation.save().then((data) => {
-          return res.json({ result: true, data });
-        });
-      });
+    // Vérifie si l'utilisateur est déjà dans la réservation
+    if (reservation.users.includes(userId)) {
+      return res.json({ result: false, error: "Utilisateur déjà invité" });
+    }
+    reservation.users.push(userId);
+    reservation.save().then((data) => {
+      return res.json({ result: true, data });
     });
   });
 });
 
-//----- Supprimer une réservation par Id
+//------------------- Supprimer une réservation par Id ------------------------
 router.delete("/deleteUser", (req, res) => {
   const { reservationId } = req.body;
 
@@ -139,7 +165,7 @@ router.delete("/deleteUser", (req, res) => {
   });
 });
 
-// ---- Quitter une réservation
+// ------------------- Quitter une réservation ------------------------
 router.delete("/leaveReservation", (req, res) => {
   const { reservationId, userId } = req.body;
 
