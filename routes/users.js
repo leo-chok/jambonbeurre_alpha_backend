@@ -186,7 +186,7 @@ router.post("/signin", (req, res) => {
   // Recherche par email
   User.findOne({ "authentification.email": email }).then((data) => {
     if (data && bcrypt.compareSync(password, data.authentification.password)) {
-      res.json({ result: true, userToken: data.authentification.token });
+      res.json({ result: true, userInfos: data});
     } else if (data) {
       res.json({ result: false, info: "Authentification failed" });
     } else {
