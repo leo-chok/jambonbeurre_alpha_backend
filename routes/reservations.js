@@ -36,24 +36,22 @@ router.get("/restaurant/:restaurantId", (req, res) => {
   if (!restaurantId) {
     return res.json({ result: false, error: "Missing restaurant ID" });
   }
-  Restaurants
-    .findById(restaurantId)
-    .then((restaurant) => {
-      if (!restaurant) {
-        return res.json({ result: false, error: "Restaurant not found" });
-      }
-      Reservations.find({ restaurants: restaurantId })
-        .populate("users")
-        .select('infos')
-        .then((data) => {
-          if (data.length === 0) {
-            return res.json({ result: false, error: "No reservations found" });
-          } else {
-            return res.json({ result: true, data });
-          }
-        });
-    })
-})
+  Restaurants.findById(restaurantId).then((restaurant) => {
+    if (!restaurant) {
+      return res.json({ result: false, error: "Restaurant not found" });
+    }
+    Reservations.find({ restaurants: restaurantId })
+      .populate("users")
+      .select("infos")
+      .then((data) => {
+        if (data.length === 0) {
+          return res.json({ result: false, error: "No reservations found" });
+        } else {
+          return res.json({ result: true, data });
+        }
+      });
+  });
+});
 //------------------- Permet d'afficher les reservations via usersID ------------------------
 router.get("/user/:userId", (req, res) => {
   const userId = req.params.userId;
@@ -78,8 +76,8 @@ router.get("/user/:userId", (req, res) => {
 });
 //------------------- Permet d'ajouter une réservation ------------------------
 router.post("/add", (req, res) => {
-  const { name, token, date, conversation, restaurantId } = req.body;
-  if (!name || !token || !date || !conversation || !restaurantId) {
+  const { name, token, date, restaurantId } = req.body;
+  if (!name || !token || !date || !restaurantId) {
     return res.json({ result: false, error: "Missing required fields" });
   }
   //Trouve l'utilisateur correspondant au token
@@ -88,40 +86,35 @@ router.post("/add", (req, res) => {
       if (!user) {
         return res.json({ result: false, error: "Invalid token" });
       }
-      //Recherche le chat correspondant à la réservation
-      Chats.findById(conversation).then((chats) => {
-        if (!chats) {
-          return res.json({ result: false, error: "Chat not found" });
-        }
 
-        Restaurants.findById(restaurantId).then((restaurant) => {
-          if (!restaurant) {
-            return res.json({ result: false, error: "Restaurant not found" });
-          }
-          const newConversation = new Chats({
-            users: [user._id],
-            title: "",
-            messages: [],
-          });
-          const newReservation = new Reservations({
-            name: restaurant.name,
-            users: [user._id], //L'utilisateur qui a crée la réservation est ajouté comme participant
-            date: date,
-            conversation: newConversation._id, //Conversation liée à cette réservation
-            restaurants: restaurant._id,
-          });
-          newConversation.save();
-          return newReservation
-            .save()
-            .then((newReservation) => {
-              res.json({ result: true, Reservations: newReservation });
-            })
-            .catch((error) => {
-              res.json({ result: false, error: error.message });
-            });
+      Restaurants.findById(restaurantId).then((restaurant) => {
+        if (!restaurant) {
+          return res.json({ result: false, error: "Restaurant not found" });
+        }
+        const newConversation = new Chats({
+          users: [user._id],
+          title: "",
+          messages: [],
         });
+        const newReservation = new Reservations({
+          name: restaurant.name,
+          users: [user._id], //L'utilisateur qui a crée la réservation est ajouté comme participant
+          date: date,
+          conversation: newConversation._id, //Conversation liée à cette réservation
+          restaurants: restaurant._id,
+        });
+        newConversation.save();
+        return newReservation
+          .save()
+          .then((newReservation) => {
+            res.json({ result: true, Reservations: newReservation });
+          })
+          .catch((error) => {
+            res.json({ result: false, error: error.message });
+          });
       });
     })
+
     .catch((error) => {
       res.json({ result: false, error: error.message });
     });
