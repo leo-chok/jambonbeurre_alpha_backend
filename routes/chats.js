@@ -11,22 +11,6 @@ router.get("/chat", (req, res) => {
 }); //get
 */
 
-function getUerDataFromToken(localtoken) {
-  //return data si le token existe
-  //return null en cas d'erreur
-  return User.findOne({ "authentification.token": localtoken }).then((data) => {
-    return data;
-  }); //then findOne
-} //function
-
-router.get("/chatTest", (req, res) => {
-  getUerDataFromToken("").then((data) => {
-    //console.log(data);
-    if (data) console.log("ok");
-    else console.log("nok");
-    res.json({ test: "test" });
-  });
-});
 
 //----------------créer Une Discussion---------------------------------------------
 router.post("/creeUneDiscussion", (req, res) => {
@@ -74,7 +58,10 @@ router.post("/afficheUneDiscussion", (req, res) => {
       return res.json({ result: false, message: "le token n'est pas trouvé" });
     } //if
     console.log("token trouvé");
-    Chat.findById(idDiscussion).then((dataChat) => {
+    Chat.findById(idDiscussion).populate({
+      path: "users",
+      select :'infos'})
+    .then((dataChat) => {
       res.json({ discussion: dataChat });
     }); //then Chat.findOne
   }); //User.findOne
