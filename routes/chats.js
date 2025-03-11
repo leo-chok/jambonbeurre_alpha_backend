@@ -34,7 +34,7 @@ router.post("/creeUneDiscussion", (req, res) => {
   const token = req.body.token;
   let userIdHote;
   const userIdInvite = req.body.userIdInvite;
-  const title = req.body.title;
+  let title = req.body.title;
 
   //recuperation du username à partir du token
   User.findOne({ "authentification.token": token }).then((dataUserHote) => {
@@ -124,8 +124,6 @@ router.post("/creerUnMessage", (req, res) => {
       message: message,
       date: new Date(),
       idSender: idHote,
-      userName: userNameHote,
-      avatar: dataUserHote.infos.avatar,
     };
     //enregistrement du message
     Chat.updateOne(
@@ -254,12 +252,16 @@ router.post("/getAllChat", (req, res) => {
   User.findOne({ "authentification.token": token }).then((dataUserHote) => {
     if (!dataUserHote) {
       return res.json({ result: false, message: "le token n'est pas trouvé" });
-    } //if dataUserHote
+    } 
     idHote = dataUserHote._id;
-    //controle si idHote est bien propriétaire du message
-    Chat.find({ users: idHote }).then((dataChat) => {
+    //recherche si idHote est bien inscrit dans la discussion
+    Chat.find({ users: idHote }) .populate({
+    path: "users",
+    select :'infos'})
+    .then((dataChat) => {
       if (dataChat.length === 0) {
         return res.json({ result: false, message: "pas de discussion trouvé" });
+        console.log("pas de discussion trouvé");
       } //if datachat
       console.log(dataChat);
       res.json({ result: true, discussion: dataChat });
