@@ -137,6 +137,35 @@ router.post("/invite", (req, res) => {
     });
   });
 });
+//------------------- Rejoindre une réservation ------------------------
+router.post("/join", (req, res) => {
+  const { reservationId, token } = req.body;
+  if (!reservationId || !token) {
+    return res.json({
+      result: false,
+      error: "Reservation ID and token are required",
+    });
+  }
+  Reservations.findById(reservationId).then((reservation) => {
+    if (!reservation) {
+      return res.json({ result: false, error: "Réservation introuvable" });
+    }
+    //Trouve l'utilisateur correspondant au token
+    Users.findOne({ "authentification.token": token }).then((user) => {
+      if (!user) {
+        return res.json({ result: false, error: "Invalid token" });
+      }
+      // Vérifie si l'utilisateur est déjà dans la réservation
+      if (reservation.users.includes(user._id)) {
+        return res.json({ result: false, error: "Utilisateur déjà invité" });
+      }
+      reservation.users.push(user._id);
+      reservation.save().then((data) => {
+        return res.json({ result: true, data });
+      });
+    });
+  });
+});
 
 //------------------- Supprimer une réservation par Id ------------------------
 router.delete("/deleteUser", (req, res) => {
@@ -160,26 +189,46 @@ router.delete("/deleteUser", (req, res) => {
 
 // ------------------- Quitter une réservation ------------------------
 router.delete("/leaveReservation", (req, res) => {
-  const { reservationId, userId } = req.body;
-
-  if (!reservationId || !userId) {
+  const { reservationId, token } = req.body;
+  console.log(req.body);
+  if (!reservationId || !token) {
     return res.json({
       result: false,
       error: "Reservation ID and User ID are required",
     });
   }
-  Reservations.findById(reservationId).then((reservation) => {
-    if (!reservation) {
-      return res.json({ result: false, error: "Reservation not found" });
+
+  // Recherche l'utilisateur correspondant au token
+  Users.findOne({ "authentification.token": token }).then((user) => {
+    if (!user) {
+      return res.json({ result: false, error: "Invalid token" });
     }
-    // Vérifie si l'utilisateur fait bien partie de cette réservation
-    if (reservation.users.indexOf(userId) === -1) {
-      return res.json({ result: false, error: "User not in reservation" });
-    }
-    reservation.users = reservation.users.filter((user) => user != userId);
-    reservation.save().then((data) => {
-      return res.json({ result: true, data });
+
+    // Recherche la réservation avec l'ID fourni
+    Reservations.findById(reservationId).then((reservation) => {
+      if (!reservation) {
+        return res.json({ result: false, error: "Reservation not found" });
+      }
+
+      if (!reservation.users.includes(user._id.toString())) {
+        return res.json({
+          result: false,
+          error: "User not in reservation",
+        });
+      }
+      reservation.users = reservation.users.filter(
+        (userId) => userId.toString() !== user._id.toString()
+      );
+      reservation
+        .save()
+        .then((updatedReservation) => {
+          return res.json({ result: true, data: updatedReservation }); // Réponse avec la réservation mise à jour
+        })
+        .catch((error) => {
+          return res.json({ result: false, error: error.message }); // Gestion d'erreur en cas de problème lors de l'enregistrement
+        });
     });
   });
 });
+
 module.exports = router;
