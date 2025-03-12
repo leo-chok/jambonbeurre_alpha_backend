@@ -27,17 +27,17 @@ router.post("/creeUneDiscussion", (req, res) => {
     }
     console.log("token trouvé");
     userIdHote = dataUserHote._id;
-    let tableauDesUsers = userIdInvite;
-    console.log(tableauDesUsers);
+    let tableauDesUsers = userIdInvite; 
     tableauDesUsers.push(userIdHote.toString()); //ajout de l'hote , transforme objectId en string
 
-    console.log(tableauDesUsers);
+    //creation d'une discussion
     const newConversation = new Chat({
       users: tableauDesUsers,
       title: title,
       messages: [],
     });
-    //creation d'une discussion
+    
+    //enregistrement de la discussion
     newConversation.save().then((data) => {
       console.log(data);
       res.json({ Discussion: data });
@@ -161,25 +161,6 @@ router.get("/quitte", (req, res) => {
     ); //then find
   }); //findOne token1
 }); //get
-/*
-//-------------supprime chat---------------------------------------
-router.get("/supChat", (req, res) => {
-  //avec id de discussion et User - quitte la discussion.
-  const idDiscussion = req.body.idDiscussion;
-  Chat.findById(idDiscussion).then((dataChat) => {
-    if (dataChat) {
-      if (dataChat.users.length === 0)
-        Chat.deleteOne({ _id: idDiscussion }).then(() => {
-          Chat.find().then((data) => {
-            console.log("ok");
-            res.json({ result: true, message: "discussion effacé" });
-          });
-        });
-    } //if
-    else  res.json({ result: false, message: "la discussion n'est pas trouvé" });
-  }); //findById
-}); //router
-*/
 
 //------------supprime un Message---------------------------------------------------------------
 
