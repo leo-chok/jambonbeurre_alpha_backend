@@ -11,7 +11,8 @@ router.get("/:token", (req, res) => {
   if (!token) {
     return res.json({ result: false, error: "Missing token" });
   }
-  Users.findOne({ "authentification.token": token }).then((user) => { //Trouve l'utilisateur associé au token
+  Users.findOne({ "authentification.token": token }).then((user) => {
+    //Trouve l'utilisateur associé au token
     if (!user) {
       return res.json({ result: false, error: "Invalid token" });
     }
@@ -38,6 +39,7 @@ router.get("/restaurant/:restaurantId", (req, res) => {
       return res.json({ result: false, error: "Restaurant not found" });
     }
     Reservations.find({ restaurants: restaurantId })
+      .select("date")
       .populate("users")
       .select("infos")
       .then((data) => {
@@ -120,7 +122,8 @@ router.post("/invite", (req, res) => {
     if (!reservation) {
       return res.json({ result: false, error: "Réservation introuvable" });
     }
-    if (reservation.users.includes(userId)) { // Vérifie si l'utilisateur est déjà dans la réservation
+    if (reservation.users.includes(userId)) {
+      // Vérifie si l'utilisateur est déjà dans la réservation
       return res.json({ result: false, error: "Utilisateur déjà invité" });
     }
     reservation.users.push(userId);
@@ -142,11 +145,12 @@ router.post("/join", (req, res) => {
     if (!reservation) {
       return res.json({ result: false, error: "Réservation introuvable" });
     }
-    Users.findOne({ "authentification.token": token }).then((user) => { 
+    Users.findOne({ "authentification.token": token }).then((user) => {
       if (!user) {
         return res.json({ result: false, error: "Invalid token" });
       }
-      if (reservation.users.includes(user._id)) { // Vérifie si l'utilisateur est déjà dans la réservation
+      if (reservation.users.includes(user._id)) {
+        // Vérifie si l'utilisateur est déjà dans la réservation
         return res.json({ result: false, error: "Utilisateur déjà invité" });
       }
       reservation.users.push(user._id);
@@ -184,11 +188,12 @@ router.delete("/leaveReservation", (req, res) => {
       error: "Reservation ID and User ID are required",
     });
   }
-  Users.findOne({ "authentification.token": token }).then((user) => {  
+  Users.findOne({ "authentification.token": token }).then((user) => {
     if (!user) {
       return res.json({ result: false, error: "Invalid token" });
     }
-    Reservations.findById(reservationId).then((reservation) => { // Recherche la réservation avec l'ID fourni
+    Reservations.findById(reservationId).then((reservation) => {
+      // Recherche la réservation avec l'ID fourni
       if (!reservation) {
         return res.json({ result: false, error: "Reservation not found" });
       }
