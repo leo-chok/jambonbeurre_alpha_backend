@@ -88,7 +88,7 @@ router.post("/add", (req, res) => {
         }
         const newConversation = new Chats({
           users: [user._id],
-          title: "",
+          title: restaurant.name,
           messages: [],
         });
         const newReservation = new Reservations({
