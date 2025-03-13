@@ -76,7 +76,7 @@ router.post("/signup", (req, res) => {
 
   //Vérification si l'email n'est pas déjà enregistré
   User.findOne({ "authentification.email": email }).then((data) => {
-    if (data === null) {
+    if (!data) {
       // Hashage du password et attribution d'un token
       const hash = bcrypt.hashSync(password, 10);
       const token = uid2(32);
