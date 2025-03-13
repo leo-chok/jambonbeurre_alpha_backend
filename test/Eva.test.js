@@ -1,6 +1,5 @@
 const request = require('supertest');
 const app = require('../app');
-const mongoose = require('mongoose');
 
 const newReservation = {
   name: "MEERT",
@@ -22,3 +21,7 @@ it('POST /reservations/add', async () => {
 
 
 });
+
+
+
+
