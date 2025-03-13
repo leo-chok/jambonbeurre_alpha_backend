@@ -12,7 +12,7 @@ const randomLocation = require("random-location");
 
 // Route pour récupérer tous les utilisateurs
 router.get("/all", function (req, res) {
-  User.find().then((data) => {
+  User.find().select("infos description preferences").then((data) => {
     res.json({ result: true, listUsers: data });
   });
 });
