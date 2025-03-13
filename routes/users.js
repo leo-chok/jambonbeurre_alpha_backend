@@ -87,7 +87,7 @@ router.post("/signup", (req, res) => {
           username: "",
           firstname: "",
           lastname: "",
-          avatar: "avatar_01.png",
+          avatar: "https://res.cloudinary.com/drwls8kx4/image/upload/v1741857431/utqbtzyo2dmoenyl5czv.png",
           online: true,
           location: {
             type: "Point",
