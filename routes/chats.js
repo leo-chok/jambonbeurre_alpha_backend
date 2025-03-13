@@ -11,22 +11,6 @@ router.get("/chat", (req, res) => {
 }); //get
 */
 
-function getUerDataFromToken(localtoken) {
-  //return data si le token existe
-  //return null en cas d'erreur
-  return User.findOne({ "authentification.token": localtoken }).then((data) => {
-    return data;
-  }); //then findOne
-} //function
-
-router.get("/chatTest", (req, res) => {
-  getUerDataFromToken("").then((data) => {
-    //console.log(data);
-    if (data) console.log("ok");
-    else console.log("nok");
-    res.json({ test: "test" });
-  });
-});
 
 //----------------créer Une Discussion---------------------------------------------
 router.post("/creeUneDiscussion", (req, res) => {
@@ -34,7 +18,7 @@ router.post("/creeUneDiscussion", (req, res) => {
   const token = req.body.token;
   let userIdHote;
   const userIdInvite = req.body.userIdInvite;
-  const title = req.body.title;
+  let title = req.body.title;
 
   //recuperation du username à partir du token
   User.findOne({ "authentification.token": token }).then((dataUserHote) => {
@@ -43,17 +27,17 @@ router.post("/creeUneDiscussion", (req, res) => {
     }
     console.log("token trouvé");
     userIdHote = dataUserHote._id;
-    let tableauDesUsers = userIdInvite;
-    console.log(tableauDesUsers);
+    let tableauDesUsers = userIdInvite; 
     tableauDesUsers.push(userIdHote.toString()); //ajout de l'hote , transforme objectId en string
 
-    console.log(tableauDesUsers);
+    //creation d'une discussion
     const newConversation = new Chat({
       users: tableauDesUsers,
       title: title,
       messages: [],
     });
-    //creation d'une discussion
+    
+    //enregistrement de la discussion
     newConversation.save().then((data) => {
       console.log(data);
       res.json({ Discussion: data });
@@ -74,7 +58,10 @@ router.post("/afficheUneDiscussion", (req, res) => {
       return res.json({ result: false, message: "le token n'est pas trouvé" });
     } //if
     console.log("token trouvé");
-    Chat.findById(idDiscussion).then((dataChat) => {
+    Chat.findById(idDiscussion).populate({
+      path: "users",
+      select :'infos'})
+    .then((dataChat) => {
       res.json({ discussion: dataChat });
     }); //then Chat.findOne
   }); //User.findOne
@@ -124,8 +111,6 @@ router.post("/creerUnMessage", (req, res) => {
       message: message,
       date: new Date(),
       idSender: idHote,
-      userName: userNameHote,
-      avatar: dataUserHote.infos.avatar,
     };
     //enregistrement du message
     Chat.updateOne(
@@ -176,25 +161,6 @@ router.get("/quitte", (req, res) => {
     ); //then find
   }); //findOne token1
 }); //get
-/*
-//-------------supprime chat---------------------------------------
-router.get("/supChat", (req, res) => {
-  //avec id de discussion et User - quitte la discussion.
-  const idDiscussion = req.body.idDiscussion;
-  Chat.findById(idDiscussion).then((dataChat) => {
-    if (dataChat) {
-      if (dataChat.users.length === 0)
-        Chat.deleteOne({ _id: idDiscussion }).then(() => {
-          Chat.find().then((data) => {
-            console.log("ok");
-            res.json({ result: true, message: "discussion effacé" });
-          });
-        });
-    } //if
-    else  res.json({ result: false, message: "la discussion n'est pas trouvé" });
-  }); //findById
-}); //router
-*/
 
 //------------supprime un Message---------------------------------------------------------------
 
@@ -254,12 +220,16 @@ router.post("/getAllChat", (req, res) => {
   User.findOne({ "authentification.token": token }).then((dataUserHote) => {
     if (!dataUserHote) {
       return res.json({ result: false, message: "le token n'est pas trouvé" });
-    } //if dataUserHote
+    } 
     idHote = dataUserHote._id;
-    //controle si idHote est bien propriétaire du message
-    Chat.find({ users: idHote }).then((dataChat) => {
+    //recherche si idHote est bien inscrit dans la discussion
+    Chat.find({ users: idHote }) .populate({
+    path: "users",
+    select :'infos'})
+    .then((dataChat) => {
       if (dataChat.length === 0) {
         return res.json({ result: false, message: "pas de discussion trouvé" });
+        console.log("pas de discussion trouvé");
       } //if datachat
       console.log(dataChat);
       res.json({ result: true, discussion: dataChat });
