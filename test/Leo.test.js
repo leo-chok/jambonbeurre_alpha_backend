@@ -4,32 +4,6 @@ const { matchers } = require("jest-json-schema");
 
 expect.extend(matchers);
 
-
-
-// it("GET /restaurants/all", async () => {
-//   const res = await request(app).get("/restaurants/all");
-
-//   const expectedSchema = {
-//     name: { type: "string" },
-//     type: { type: "string" },
-//     priceLevel: { type: "string" },
-//     address: { type: "string" },
-//     rating: Number,
-//     location: {
-//       type: "object",
-//     },
-//     website: { type: "string" },
-//     openingHours: { type: "array", items: { type: "object" } },
-//   };
-
-//   expect(res.statusCode).toBe(200);
-//   res.body.googleRestaurants.forEach((restaurant) => {
-//     expect(restaurant).toMatchSchema(expectedSchema);
-//   });
-// });
-
-
-
 it("GET /users/all", async () => {
   const res = await request(app).get("/users/all");
 
@@ -66,6 +40,9 @@ it("GET /users/all", async () => {
         },
         required: ["email", "password", "token"],
       },
+
+
+      
       description: {
         type: "object",
         properties: {
