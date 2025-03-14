@@ -428,7 +428,7 @@ router.post("/addfake", (req, res) => {
       username: faker.person.fullName(),
       firstname: faker.person.firstName(),
       lastname: faker.person.lastName(),
-      avatar: faker.image.avatar(),
+      avatar: faker.image.personPortrait(),
       online: true,
       location: {
         type: "Point",
